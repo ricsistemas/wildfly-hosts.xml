@@ -1,0 +1,44 @@
+     <subsystem xmlns="urn:jboss:domain:undertow:3.1">
+            <buffer-cache name="default"/>
+            <server name="default-server">
+                <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
+                <https-listener name="https" socket-binding="https" security-realm="ApplicationRealm" enable-http2="true"/>
+                <host name="default-host" alias="localhost">
+                    <location name="/" handler="welcome-content"/>
+                    <filter-ref name="server-header"/>
+                    <filter-ref name="x-powered-by-header"/>
+                    <filter-ref name="Access-Control-Allow-Origin"/>
+                    <filter-ref name="Access-Control-Allow-Methods"/>
+                    <filter-ref name="Access-Control-Allow-Headers"/>
+					<filter-ref name="custom-max-age" predicate="path-suffix['.js'] or path-suffix ['.css'] or path-suffix ['.jpg'] or path-suffix ['.jpeg'] or path-suffix ['.png'] or path-suffix ['.gif']"/>
+                    <filter-ref name="gzipFilter" predicate="exists['%{o,Content-Type}'] and regex[pattern='(?:application/javascript|text/css|text/html|text/xml|application/json)(;.*)?', value=%{o,Content-Type}, full-match=true]"/>
+                </host>
+				<host name="teste" alias="site2.tk,www.site2.tk">
+					<location name="/" handler="teste"/>
+					<filter-ref name="server-header"/>
+                    <filter-ref name="x-powered-by-header"/>
+                    <filter-ref name="Access-Control-Allow-Origin"/>
+                    <filter-ref name="Access-Control-Allow-Methods"/>
+                    <filter-ref name="Access-Control-Allow-Headers"/>
+                    <filter-ref name="gzipFilter" predicate="exists['%{o,Content-Type}'] and regex[pattern='(?:application/javascript|text/css|text/html|text/xml|application/json)(;.*)?', value=%{o,Content-Type}, full-match=true]"/>
+				</host>
+            </server>
+            <servlet-container name="default">
+                <jsp-config/>
+                <websockets/>
+            </servlet-container>
+            <handlers>
+                <file name="welcome-content" path="${jboss.home.dir}/welcome-content"/>
+				<file name="teste" path="${jboss.home.dir}/teste"/>
+            </handlers>
+            <filters>
+                <response-header name="server-header" header-name="Server" header-value="WildFly/10"/>
+				<response-header name="custom-max-age" header-name="Cache-Control" header-value="max-age=31536000,max-stale=31536000, public"/>
+                <response-header name="x-powered-by-header" header-name="X-Powered-By" header-value="Undertow/1"/>
+                <response-header name="Access-Control-Allow-Origin" header-name="Access-Control-Allow-Origin" header-value="*"/>
+                <response-header name="Access-Control-Allow-Methods" header-name="Access-Control-Allow-Methods" header-value="GET, POST, OPTIONS, PUT, DELETE"/>
+                <response-header name="Access-Control-Allow-Headers" header-name="Access-Control-Allow-Headers" header-value="Accept,Token,Content-Type"/>
+                <response-header name="Vary-header" header-name="Vary" header-value="Accept-Encoding"/>
+                <gzip name="gzipFilter"/>
+            </filters>
+        </subsystem>
